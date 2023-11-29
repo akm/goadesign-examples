@@ -22,8 +22,8 @@ APP=chatter
 DEPEND=\
 	github.com/hashicorp/go-getter \
 	github.com/cheggaaa/pb \
-	github.com/golang/protobuf/protoc-gen-go \
-	github.com/golang/protobuf/proto \
+	google.golang.org/protobuf/cmd/protoc-gen-go \
+	google.golang.org/protobuf/proto \
 	goa.design/goa/... \
 	golang.org/x/lint/golint \
 	golang.org/x/tools/cmd/goimports \
@@ -36,6 +36,7 @@ all: gen lint test
 
 # Install protoc
 GOOS=$(shell go env GOOS)
+GOPATH?=$(shell go env GOPATH)
 PROTOC_VERSION=3.6.1
 ifeq ($(GOOS),linux)
 PROTOC=protoc-$(PROTOC_VERSION)-linux-x86_64
@@ -56,13 +57,13 @@ GOBIN="$(GOPATH)\bin"
 endif
 depend:
 	@echo INSTALLING DEPENDENCIES...
-	@go get -v $(DEPEND)
-	@go install github.com/hashicorp/go-getter/cmd/go-getter && \
-		go-getter https://github.com/google/protobuf/releases/download/v$(PROTOC_VERSION)/$(PROTOC).zip $(PROTOC) && \
+	go get -v $(DEPEND)
+	go install github.com/hashicorp/go-getter/cmd/go-getter && \
+		go-getter https://github.com/protocolbuffers/protobuf/releases/download/v$(PROTOC_VERSION)/$(PROTOC).zip $(PROTOC) && \
 		cp $(PROTOC_EXEC) $(GOBIN) && \
 		rm -r $(PROTOC)
-	@go install github.com/golang/protobuf/protoc-gen-go
-	@go get -t -v ./...
+	go install google.golang.org/protobuf/cmd/protoc-gen-go
+	go get -t -v ./...
 
 lint:
 	@echo LINTING CODE...
